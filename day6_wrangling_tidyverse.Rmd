@@ -1,0 +1,78 @@
+---
+title: 'Data wrangling in {tidyr}'
+author: "Jillian Allison"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+
+# loading packages 
+
+library(tidyverse)
+library(here)
+library(janitor)
+
+```
+
+#### Read in World Bank data files 
+
+```{r}
+wb_indicators <- read_csv(here("data","wb_indicators.csv"), na = c("..", ""))
+
+wb_metadata <- read_csv(here("data","wb_indicators_metadata.csv"))
+
+```
+
+#### Tidy up my data 
+
+##### pivot_longer() to get years into a single column
+```{r}
+wb_indicators_long <- wb_indicators %>% 
+  pivot_longer(cols = `2001 [YR2001]`:`2020 [YR2020]`, 
+               names_to = "year",
+               values_to = "value") %>% 
+  clean_names() 
+```
+
+##### separate() to clean up the year column 
+notes: drop_na()-- any row where the series name column contains NA gets DROPPED 
+```{r}
+wb_clean <- wb_indicators_long %>%  
+  separate(col = year,
+           into = c("year","year_chr"),
+           sep = " ") %>% 
+  select(-year_chr, -country_code, -series_code) %>% # we don't need the annoying [YR 2001] thing
+  mutate(year = as.numeric(year)) %>% 
+  drop_na('series_name') %>% 
+  # widen the variables currently trapped in 'series_name' to be spread across multiple columns, and get the values that populated the columns from 'indicator_value' 
+  pivot_wider(names_from = series_name, 
+              values_from = value)
+
+names(wb_clean) <- c("country",
+                     "year",
+                     "access_clean_fuels_pp",
+                     "access_electricity_pp",
+                     "co2_emissions_kt",
+                     "fossil_fuel_consumption_pcttot",
+                     "water_stress")
+
+wb_subset <- wb_clean %>% 
+  filter(country %in% c("Algeria",
+                        "Barbados",
+                        "Bulgaria",
+                        "Chile"))
+
+ggplot(data = wb_subset, 
+       aes(x = year, y = co2_emissions_kt)) +
+  geom_line(aes(color = country)) + 
+  theme_minimal() + 
+  facet_wrap(~country)
+```
+
+
+
+
+
+
