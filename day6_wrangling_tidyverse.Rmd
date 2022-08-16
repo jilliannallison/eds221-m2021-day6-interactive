@@ -113,4 +113,71 @@ ex_19 <- wb_clean %>%
   filter(country %in% c("Tanzania","France","Turkey"))
 ```
 
+### rename()
+```{r}
+ex_20 <- wb_clean %>% 
+  rename(ffcp = fossil_fuel_consumption_pcttot, ws = water_stress)
+
+ex_21 <- wb_clean %>% 
+  rename(co2_emm_kt = co2_emissions_kt)
+```
+
+### mutate(): update an existing column, or add a new one 
+
+if you assign a NEW column name, it will add a new column to the end of your data frame. if you assign an existing column name, it will overwrite that column. 
+
+add new column related to other existing column
+```{r}
+ex_22 <- wb_clean %>% 
+  mutate(co2_emissions_t = co2_emissions_kt * 1000) %>% 
+  relocate(co2_emissions_t, .after = co2_emissions_kt)
+```
+
+adding a new column with new stuff
+```{r}
+ex_23 <- wb_clean %>% 
+  mutate(yay = "YAY")
+```
+
+coercing to a different class! 
+```{r}
+ex_24 <- wb_clean %>% 
+  mutate(year = as.character(year))
+```
+
+```{r}
+ex_25 <- ex_24 %>% 
+  mutate(year = as.numeric(year))
+```
+
+moving columns around!! 
+```{r}
+ex_26 <- wb_clean %>% 
+  relocate(water_stress, .after = year)
+```
+
+
+### more group_by() %>% summarize() examples are in the eds221 notes for lecture 11 and 12 :) bc i like the notes page better and we dont need wb_clean rn
+
+
+# practice example: 
+- start from wb_clean 
+- only keep observations for nicaragua, ecuador, peru, and chile, AND for years greater than 2005
+- only keep columns for country, year, and co2_emissions 
+- add a new column that is co2 emissions converted to megatons 
+- find the total co2 emissions for the years still in the dataset by country (groupbysummarizesum) in megatons
+```{r}
+final_boss_example <- wb_clean %>% 
+  filter(country %in% c("Nicaragua","Ecuador","Peru","Chile"), 
+         year > 2005) %>% 
+  select(country, year, co2_emissions_kt) %>% 
+  mutate(co2_emissions_mt = co2_emissions_kt / 1000)
+
+summary_final_boss_ex <- final_boss_example %>% 
+  group_by(country) %>% 
+  summarize(total_co2_emissions_mt = sum(co2_emissions_mt, na.rm = TRUE))
+```
+
+
+
 

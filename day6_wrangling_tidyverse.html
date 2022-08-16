@@ -448,6 +448,61 @@ they’re in the order that i put them . fun and sexy</p>
 <pre class="r"><code>ex_19 &lt;- wb_clean %&gt;% 
   select(year, country, water_stress) %&gt;% 
   filter(country %in% c(&quot;Tanzania&quot;,&quot;France&quot;,&quot;Turkey&quot;))</code></pre>
+<div id="rename" class="section level3">
+<h3>rename()</h3>
+<pre class="r"><code>ex_20 &lt;- wb_clean %&gt;% 
+  rename(ffcp = fossil_fuel_consumption_pcttot, ws = water_stress)
+
+ex_21 &lt;- wb_clean %&gt;% 
+  rename(co2_emm_kt = co2_emissions_kt)</code></pre>
+</div>
+<div id="mutate-update-an-existing-column-or-add-a-new-one" class="section level3">
+<h3>mutate(): update an existing column, or add a new one</h3>
+<p>if you assign a NEW column name, it will add a new column to the end
+of your data frame. if you assign an existing column name, it will
+overwrite that column.</p>
+<p>add new column related to other existing column</p>
+<pre class="r"><code>ex_22 &lt;- wb_clean %&gt;% 
+  mutate(co2_emissions_t = co2_emissions_kt * 1000) %&gt;% 
+  relocate(co2_emissions_t, .after = co2_emissions_kt)</code></pre>
+<p>adding a new column with new stuff</p>
+<pre class="r"><code>ex_23 &lt;- wb_clean %&gt;% 
+  mutate(yay = &quot;YAY&quot;)</code></pre>
+<p>coercing to a different class!</p>
+<pre class="r"><code>ex_24 &lt;- wb_clean %&gt;% 
+  mutate(year = as.character(year))</code></pre>
+<pre class="r"><code>ex_25 &lt;- ex_24 %&gt;% 
+  mutate(year = as.numeric(year))</code></pre>
+<p>moving columns around!!</p>
+<pre class="r"><code>ex_26 &lt;- wb_clean %&gt;% 
+  relocate(water_stress, .after = year)</code></pre>
+</div>
+<div id="more-group_by-summarize-examples-are-in-the-eds221-notes-for-lecture-11-and-12-bc-i-like-the-notes-page-better-and-we-dont-need-wb_clean-rn" class="section level3">
+<h3>more group_by() %&gt;% summarize() examples are in the eds221 notes
+for lecture 11 and 12 :) bc i like the notes page better and we dont
+need wb_clean rn</h3>
+</div>
+</div>
+<div id="practice-example" class="section level1">
+<h1>practice example:</h1>
+<ul>
+<li>start from wb_clean</li>
+<li>only keep observations for nicaragua, ecuador, peru, and chile, AND
+for years greater than 2005</li>
+<li>only keep columns for country, year, and co2_emissions</li>
+<li>add a new column that is co2 emissions converted to megatons</li>
+<li>find the total co2 emissions for the years still in the dataset by
+country (groupbysummarizesum) in megatons</li>
+</ul>
+<pre class="r"><code>final_boss_example &lt;- wb_clean %&gt;% 
+  filter(country %in% c(&quot;Nicaragua&quot;,&quot;Ecuador&quot;,&quot;Peru&quot;,&quot;Chile&quot;), 
+         year &gt; 2005) %&gt;% 
+  select(country, year, co2_emissions_kt) %&gt;% 
+  mutate(co2_emissions_mt = co2_emissions_kt / 1000)
+
+summary_final_boss_ex &lt;- final_boss_example %&gt;% 
+  group_by(country) %&gt;% 
+  summarize(total_co2_emissions_mt = sum(co2_emissions_mt, na.rm = TRUE))</code></pre>
 </div>
 
 
