@@ -72,7 +72,45 @@ ggplot(data = wb_subset,
 ```
 
 
+# SELECT() NOTES!!! Columns 
+
+Choosing specific columns 
+```{r}
+ex_14 <- wb_clean %>% 
+  select(country, year, co2_emissions_kt)
+```
+
+Choosing a range of columns
+```{r}
+ex_15 <- wb_clean %>% 
+  select(year:fossil_fuel_consumption_pcttot)
+```
+
+Exclude from a range
+```{r}
+ex_16 <- wb_clean %>% 
+  select(year:fossil_fuel_consumption_pcttot, -access_electricity_pp)
+```
 
 
+```{r}
+ex_17 <- wb_clean %>% 
+  filter(country %in% c("Bolivia","Chile","Mexico")) %>%
+  select(country:fossil_fuel_consumption_pcttot)
+```
+
+multipurpose use of select() we can rename columns with it! only keeps the columns we referred to, and it renamed them for me, and they're in the order that i put them . fun and sexy 
+```{r}
+ex_18 <- wb_clean %>% 
+  select(year_new = year, emissions = co2_emissions_kt, 
+         country_name = country)
+```
+
+select only columns for country, year, and water_stress
+```{r}
+ex_19 <- wb_clean %>% 
+  select(year, country, water_stress) %>% 
+  filter(country %in% c("Tanzania","France","Turkey"))
+```
 
 
